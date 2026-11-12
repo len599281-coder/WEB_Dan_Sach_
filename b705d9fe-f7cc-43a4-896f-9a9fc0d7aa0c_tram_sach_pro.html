@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRẠM SÁCH – Khám phá tri thức, nuôi dưỡng tâm hồn</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-serif-reading { font-family: 'Merriweather', serif; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        @keyframes flame {
+            0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); }
+            50% { transform: translateY(-3px) scale(1.08); filter: brightness(1.2); }
+        }
+        .flame-anim { animation: flame 1.2s infinite ease-in-out; }
+        .book-cover-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Announcement Bar -->
+    <div class="bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-600 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-sm flex items-center justify-center gap-2">
+        <i class="fa-solid fa-sparkles text-yellow-300"></i>
+        <span>"Mỗi ngày 15 phút, mỗi ngày một phiên bản tốt hơn!" — Khởi đầu từ Ngày 0</span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-book-open-reader text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base sm:text-lg tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">TRẠM SÁCH</h1>
+                    <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">15 phút mỗi ngày</p>
+                </div>
+            </div>
+
+            <!-- Desktop Menu -->
+            <nav class="hidden lg:flex items-center gap-1">
+                <button onclick="switchTab('home')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800" data-tab="home"><i class="fa-solid fa-house mr-1.5"></i>Trang chủ</button>
+                <button onclick="switchTab('explore')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800" data-tab="explore"><i class="fa-solid fa-compass mr-1.5"></i>Khám phá sách</button>
+                <button onclick="switchTab('library')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800" data-tab="library"><i class="fa-solid fa-book-bookmark mr-1.5"></i>Đọc sách online</button>
+                <button onclick="switchTab('shelf')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800" data-tab="shelf"><i class="fa-solid fa-books mr-1.5"></i>Tủ sách của tôi</button>
+                <button onclick="switchTab('journey')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800" data-tab="journey"><i class="fa-solid fa-fire text-orange-500 mr-1.5"></i>Hành trình đọc</button>
+                <button onclick="switchTab('profile')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium transition text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800" data-tab="profile"><i class="fa-solid fa-user mr-1.5"></i>Hồ sơ</button>
+            </nav>
+
+            <!-- Quick utilities -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div onclick="switchTab('journey')" class="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-1.5 rounded-full cursor-pointer hover:scale-105 transition">
+                    <span class="text-amber-500 flame-anim text-base"><i class="fa-solid fa-fire"></i></span>
+                    <span id="header-streak-count" class="font-bold text-xs sm:text-sm text-amber-700 dark:text-amber-400">0 ngày</span>
+                </div>
+                <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 transition">
+                    <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
+                </button>
+                <button onclick="toggleMobileMenu()" class="lg:hidden w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 space-y-1">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 flex items-center gap-3"><i class="fa-solid fa-house w-5 text-blue-500"></i>Trang chủ</button>
+            <button onclick="switchTab('explore'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 flex items-center gap-3"><i class="fa-solid fa-compass w-5 text-blue-500"></i>Khám phá sách</button>
+            <button onclick="switchTab('library'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 flex items-center gap-3"><i class="fa-solid fa-book-bookmark w-5 text-blue-500"></i>Đọc sách online</button>
+            <button onclick="switchTab('shelf'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 flex items-center gap-3"><i class="fa-solid fa-books w-5 text-blue-500"></i>Tủ sách của tôi</button>
+            <button onclick="switchTab('journey'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 flex items-center gap-3"><i class="fa-solid fa-fire w-5 text-orange-500"></i>Hành trình đọc sách</button>
+            <button onclick="switchTab('profile'); toggleMobileMenu();" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 flex items-center gap-3"><i class="fa-solid fa-user w-5 text-blue-500"></i>Hồ sơ cá nhân</button>
+        </div>
+    </header>
+
+    <!-- Main Body Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= TAB 1: TRANG CHỦ ================= -->
+        <section id="tab-home" class="tab-content space-y-10">
+            <!-- Hero -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-sky-700 to-indigo-900 text-white p-6 sm:p-12 shadow-xl">
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-blue-100">
+                        <i class="fa-solid fa-seedling text-emerald-300"></i> Bắt đầu hành trình từ Ngày 0
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+                        Mỗi Ngày 15 Phút, Mỗi Ngày Một Phiên Bản Tốt Hơn
+                    </h2>
+                    <p class="text-sm sm:text-base text-blue-100/90 leading-relaxed">
+                        Khám phá kho sách chính thống từ Kim Đồng, Trẻ, Chính trị quốc gia Sự thật... Xây dựng thói quen đọc sách mỗi ngày từ từ và bền vững.
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="scrollToSearch()" class="px-6 py-3 bg-white text-blue-700 font-semibold rounded-xl shadow-lg hover:bg-blue-50 transition flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> Khám phá sách ngay
+                        </button>
+                        <button onclick="switchTab('library')" class="px-6 py-3 bg-blue-500/40 hover:bg-blue-500/60 text-white font-semibold rounded-xl backdrop-blur-md border border-white/20 transition flex items-center gap-2">
+                            <i class="fa-solid fa-book-open-reader"></i> Đọc sách online
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Quick Bar -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl shadow-inner">
+                        <i class="fa-solid fa-stopwatch-20"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 dark:text-slate-100">Mục tiêu đọc sách hôm nay (15 phút)</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Tích lũy thời gian thực tế để thắp sáng chuỗi Streak mỗi ngày.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <div class="text-2xl font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-slate-800 px-4 py-1.5 rounded-xl border border-blue-100 dark:border-slate-700" id="home-timer-display">
+                        00:00:00
+                    </div>
+                    <button id="home-timer-btn" onclick="toggleTimer()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> Bắt đầu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search & Needs Input Form -->
+            <div id="search-section" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+                <div class="text-center max-w-2xl mx-auto space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">Trạm gợi ý thông minh</span>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
+                        HÃY CHO CHÚNG TÔI BIẾT BẠN ĐANG TÌM KIẾM ĐIỀU GÌ?
+                    </h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                        Chia sẻ tâm trạng và nhu cầu, hệ thống sẽ tinh tuyển những đầu sách chính thống phù hợp nhất.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            <i class="fa-solid fa-user-pen text-blue-500 mr-1.5"></i> Họ và tên của bạn
+                        </label>
+                        <input type="text" id="user-name-input" placeholder="Ví dụ: Nguyễn Văn An" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            <i class="fa-solid fa-calendar-days text-blue-500 mr-1.5"></i> Ngày tháng năm sinh
+                        </label>
+                        <input type="date" id="user-dob-input" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <i class="fa-solid fa-heart-pulse text-blue-500 mr-1.5"></i> Tâm trạng và nhu cầu hiện tại
+                    </label>
+                    <textarea id="user-mood-input" rows="3" placeholder="Chia sẻ tự do mong muốn, tâm trạng hoặc vấn đề bạn đang quan tâm..." class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">11 Gợi ý nhanh (Bấm để chọn):</p>
+                        <div id="quick-suggestions-container" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+
+                <div class="pt-2 text-center">
+                    <button onclick="handleSmartRecommend()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-3 mx-auto text-base">
+                        <i class="fa-solid fa-compass-drafting text-xl"></i> KHÁM PHÁ CUỐN SÁCH DÀNH CHO TÔI
+                    </button>
+                </div>
+            </div>
+
+            <!-- Featured Book Section IV -->
+            <div id="featured-book-wrapper" class="bg-gradient-to-br from-indigo-900 via-blue-900 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden">
+                <div class="relative z-10 space-y-6">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                            <i class="fa-solid fa-award"></i> CUỐN SÁCH ĐẶC BIỆT HÔM NAY
+                        </span>
+                        <span class="text-xs text-slate-300">Được tinh tuyển riêng cho hành trình của bạn</span>
+                    </div>
+                    <div id="featured-book-content" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"></div>
+                </div>
+            </div>
+
+            <!-- Smart Recommendation Results Section III -->
+            <div id="recommendation-results-section" class="space-y-6 hidden">
+                <div class="flex items-center justify-between flex-wrap gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">📚 Sách Tinh Tuyển Dành Riêng Cho Bạn</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400" id="recommendation-subtitle"></p>
+                    </div>
+                </div>
+                <div id="recommendation-books-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: KHÁM PHÁ SÁCH ================= -->
+        <section id="tab-explore" class="tab-content space-y-6 hidden">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Khám Phá Thư Viện Sách</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Tìm kiếm trực tiếp qua đầu sách chính thống từ các nhà xuất bản hàng đầu.</p>
+                </div>
+                <div class="relative w-full md:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="explore-search-input" oninput="filterExploreBooks()" placeholder="Tìm tên sách, tác giả, NXB..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
+
+            <div id="explore-categories-filter" class="flex items-center gap-2 overflow-x-auto pb-2">
+                <button onclick="filterCategory('all')" class="category-chip px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-blue-600 text-white shadow-sm transition">Tất cả</button>
+                <button onclick="filterCategory('Phát triển bản thân')" class="category-chip px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Phát triển bản thân</button>
+                <button onclick="filterCategory('Tâm lý và cuộc sống')" class="category-chip px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Tâm lý & cuộc sống</button>
+                <button onclick="filterCategory('Lịch sử Việt Nam')" class="category-chip px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Lịch sử Việt Nam</button>
+                <button onclick="filterCategory('Văn học Việt Nam')" class="category-chip px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Văn học Việt Nam</button>
+                <button onclick="filterCategory('Văn học thế giới')" class="category-chip px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Văn học thế giới</button>
+                <button onclick="filterCategory('Kỹ năng sống')" class="category-chip px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Kỹ năng sống</button>
+            </div>
+
+            <div id="explore-books-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+        </section>
+
+        <!-- ================= TAB 3: ĐỌC SÁCH ONLINE ================= -->
+        <section id="tab-library" class="tab-content space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300">
+                        <i class="fa-solid fa-book-reader"></i> Thư Viện Trực Tuyến 24/7
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Đọc Sách Trực Tiếp Trên Website</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 max-w-2xl">
+                        Trải nghiệm đọc sách toàn văn mượt mà với đầy đủ chương, chỉnh phông chữ, ghi chú cá nhân và tự động tính Streak.
+                    </p>
+                </div>
+                <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-4 py-3 rounded-2xl flex items-center gap-3">
+                    <i class="fa-solid fa-stopwatch text-2xl text-amber-500 flame-anim"></i>
+                    <div>
+                        <p class="text-[11px] font-semibold text-amber-700 dark:text-amber-400">Thời gian đọc hôm nay</p>
+                        <p class="text-lg font-bold font-mono text-amber-800 dark:text-amber-300" id="library-timer-display">00:00:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">Chọn sách toàn văn để đọc:</h3>
+                <div id="online-books-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: TỦ SÁCH CÁ NHÂN ================= -->
+        <section id="tab-shelf" class="tab-content space-y-6 hidden">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Tủ Sách Của Tôi</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Quản lý sách yêu thích, đang đọc, đã đọc, muốn đọc và đánh giá sao.</p>
+                </div>
+                <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto">
+                    <button onclick="switchShelfTab('all')" class="shelf-tab-btn px-4 py-2 rounded-xl text-xs font-semibold transition bg-blue-600 text-white" data-shelf="all">Tất cả</button>
+                    <button onclick="switchShelfTab('reading')" class="shelf-tab-btn px-4 py-2 rounded-xl text-xs font-semibold transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" data-shelf="reading">Đang đọc</button>
+                    <button onclick="switchShelfTab('favorite')" class="shelf-tab-btn px-4 py-2 rounded-xl text-xs font-semibold transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" data-shelf="favorite">Yêu thích</button>
+                    <button onclick="switchShelfTab('completed')" class="shelf-tab-btn px-4 py-2 rounded-xl text-xs font-semibold transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" data-shelf="completed">Đã đọc</button>
+                    <button onclick="switchShelfTab('want')" class="shelf-tab-btn px-4 py-2 rounded-xl text-xs font-semibold transition text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" data-shelf="want">Muốn đọc</button>
+                </div>
+            </div>
+
+            <div id="shelf-books-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- ================= TAB 5: HÀNH TRÌNH ĐỌC SÁCH & STREAK ================= -->
+        <section id="tab-journey" class="tab-content space-y-8 hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
+                    <div class="relative z-10 space-y-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-amber-100">Chuỗi đọc liên tiếp</span>
+                        <div class="text-4xl font-black flex items-center gap-2">
+                            <span id="journey-streak-number">0</span> <span class="text-xl font-bold">ngày 🔥</span>
+                        </div>
+                        <p class="text-xs text-amber-100/90">Cần 15 phút hôm nay để thắp lửa!</p>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Tổng thời gian đọc</span>
+                    <div class="text-3xl font-extrabold text-slate-900 dark:text-slate-100" id="journey-total-hours">0 phút</div>
+                    <p class="text-xs text-slate-500">Tích lũy thực tế</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Sách đã hoàn thành</span>
+                    <div class="text-3xl font-extrabold text-blue-600 dark:text-blue-400" id="journey-completed-count">0 cuốn</div>
+                    <p class="text-xs text-slate-500">Trong tủ sách cá nhân</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Kỷ lục chuỗi dài nhất</span>
+                    <div class="text-3xl font-extrabold text-amber-500" id="journey-max-streak">0 ngày</div>
+                    <p class="text-xs text-slate-500">Thành tích cao nhất</p>
+                </div>
+            </div>
+
+            <!-- Timer & Goal Progress -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Tiến độ hôm nay (Mục tiêu 15 phút)</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Hoàn thành đủ 15 phút để tăng chuỗi Streak.</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="journey-today-minutes" class="text-2xl font-black text-blue-600 dark:text-blue-400">0 / 15</span>
+                        <span class="text-sm font-semibold text-slate-500">phút</span>
+                    </div>
+                </div>
+
+                <div class="w-full bg-slate-100 dark:bg-slate-800 h-4 rounded-full overflow-hidden p-0.5 border border-slate-200 dark:border-slate-700">
+                    <div id="journey-progress-bar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+                    <div class="flex items-center gap-3">
+                        <div class="text-3xl font-mono font-bold text-slate-800 dark:text-slate-100 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl" id="journey-timer-display">
+                            00:00:00
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-slate-700 dark:text-slate-300" id="journey-timer-state-label">Đồng hồ đang dừng</p>
+                            <p class="text-[11px] text-slate-500">Timestamp chuẩn xác 100%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        <button onclick="toggleTimer()" id="journey-main-toggle-btn" class="flex-1 sm:flex-none px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i> Bắt đầu đọc
+                        </button>
+                        <button onclick="pauseTimer()" class="px-4 py-3 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 font-bold rounded-xl text-slate-700 dark:text-slate-300 transition">
+                            Tạm dừng
+                        </button>
+                        <button onclick="stopTimer()" class="px-4 py-3 bg-rose-100 dark:bg-rose-950/50 hover:bg-rose-200 text-rose-700 dark:text-rose-300 font-bold rounded-xl transition">
+                            Kết thúc
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Milestones & Calendar -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-500"></i> Cột Mốc Thành Tích Streak
+                    </h3>
+                    <div id="milestones-list" class="space-y-4"></div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-calendar-alt text-blue-500"></i> Lịch Đọc Sách Tháng Này
+                        </h3>
+                        <span id="current-month-year-label" class="text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full"></span>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-400">
+                        <div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div><div>CN</div>
+                    </div>
+                    <div id="calendar-days-grid" class="grid grid-cols-7 gap-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 6: HỒ SƠ CÁ NHÂN ================= -->
+        <section id="tab-profile" class="tab-content space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-sm max-w-3xl mx-auto space-y-8">
+                <div class="flex flex-col sm:flex-row items-center gap-6 border-b border-slate-200 dark:border-slate-800 pb-8">
+                    <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 text-white flex items-center justify-center text-3xl font-bold shadow-lg" id="profile-avatar-initial">
+                        NV
+                    </div>
+                    <div class="text-center sm:text-left space-y-1">
+                        <h2 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100" id="profile-display-name">Nguyễn Văn An</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium" id="profile-display-dob">Ngày sinh: 2000-01-01</p>
+                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 mt-2">
+                            <i class="fa-solid fa-fire text-amber-500"></i> <span id="profile-streak-badge">0 ngày liên tiếp</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">Chỉnh sửa thông tin cá nhân</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Họ và tên</label>
+                            <input type="text" id="edit-profile-name" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Ngày sinh</label>
+                            <input type="date" id="edit-profile-dob" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Sở thích đọc sách & Định hướng</label>
+                        <textarea id="edit-profile-interests" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none"></textarea>
+                    </div>
+                    <div class="pt-2 flex justify-end">
+                        <button onclick="saveProfile()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition">
+                            Lưu thay đổi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODALS -->
+    <!-- Book Detail Modal -->
+    <div id="book-detail-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl relative space-y-6 my-8">
+            <button onclick="closeBookModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modal-book-content" class="space-y-6"></div>
+        </div>
+    </div>
+
+    <!-- Online Reader Modal -->
+    <div id="reader-modal" class="fixed inset-0 z-50 bg-slate-950 text-slate-100 hidden flex flex-col">
+        <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="closeReaderModal()" class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                    <h3 id="reader-book-title" class="font-bold text-sm sm:text-base text-white"></h3>
+                    <p id="reader-chapter-title" class="text-xs text-slate-400"></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-1 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                    <button onclick="adjustFontSize(-2)" class="px-2 text-xs font-bold hover:text-blue-400">A-</button>
+                    <span id="font-size-label" class="text-xs font-mono">16px</span>
+                    <button onclick="adjustFontSize(2)" class="px-2 text-xs font-bold hover:text-blue-400">A+</button>
+                </div>
+                <div class="flex items-center gap-1 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                    <button onclick="setReaderTheme('light')" class="w-7 h-7 rounded-lg bg-white text-slate-900 text-xs font-bold">S</button>
+                    <button onclick="setReaderTheme('sepia')" class="w-7 h-7 rounded-lg bg-amber-100 text-amber-900 text-xs font-bold">V</button>
+                    <button onclick="setReaderTheme('dark')" class="w-7 h-7 rounded-lg bg-slate-950 text-slate-100 text-xs font-bold">T</button>
+                </div>
+                <button onclick="openNoteModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-note-sticky"></i> Ghi chú
+                </button>
+            </div>
+        </div>
+        <div class="w-full bg-slate-800 h-1">
+            <div id="reader-progress-bar" class="bg-blue-500 h-full w-0 transition-all duration-300"></div>
+        </div>
+        <div id="reader-scroll-container" class="flex-grow overflow-y-auto px-4 sm:px-12 py-8 flex justify-center">
+            <div id="reader-text-content" class="max-w-3xl w-full font-serif-reading text-base leading-relaxed space-y-6"></div>
+        </div>
+        <div class="bg-slate-900 border-t border-slate-800 px-6 py-4 flex items-center justify-between">
+            <button onclick="prevChapter()" id="prev-chapter-btn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-semibold rounded-xl flex items-center gap-2">
+                <i class="fa-solid fa-chevron-left"></i> Chương trước
+            </button>
+            <span id="chapter-pagination-label" class="text-xs text-slate-400 font-mono"></span>
+            <button onclick="nextChapter()" id="next-chapter-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-sm font-semibold rounded-xl flex items-center gap-2">
+                Chương sau <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Personal Note Modal -->
+    <div id="note-modal" class="fixed inset-0 z-60 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-lg text-slate-900 dark:text-slate-100">Ghi chú cá nhân</h3>
+                <button onclick="closeNoteModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <textarea id="book-personal-note" rows="5" placeholder="Ghi lại cảm nhận, bài học..." class="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm outline-none"></textarea>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeNoteModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600">Hủy</button>
+                <button onclick="saveBookNote()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold">Lưu ghi chú</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 px-4 text-center text-xs text-slate-500 dark:text-slate-400 space-y-1 mt-auto">
+        <p class="font-semibold text-slate-700 dark:text-slate-300">TRẠM SÁCH – Khám phá tri thức, nuôi dưỡng tâm hồn mỗi ngày.</p>
+        <p>Sách chính thống từ các Nhà xuất bản uy tín Việt Nam (Kim Đồng, Trẻ, Chính trị quốc gia Sự thật, Giáo dục, Văn học, Tổng hợp TP.HCM).</p>
+        <p>© 2026 Trạm Sách Online.</p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const BOOKS_DATABASE = [
+            {
+                id: "sach-1",
+                title: "Đắc Nhân Tâm",
+                author: "Dale Carnegie",
+                publisher: "NXB Tổng hợp TP.HCM",
+                year: 2023,
+                category: "Phát triển bản thân",
+                cover: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&auto=format&fit=crop&q=60",
+                summary: "Cuốn sách kinh điển về nghệ thuật thu phục lòng người, cách ứng xử trong giao tiếp để đạt được thành công.",
+                reason: "Phù hợp khi bạn muốn cải thiện kỹ năng giao tiếp và suy nghĩ tích cực hơn.",
+                fullContent: [
+                    { title: "Lời mở đầu: Cuốn sách đã thay đổi cuộc đời hàng triệu người", text: "Đắc Nhân Tâm (How to Win Friends and Influence People) của Dale Carnegie không chỉ là một cuốn sách dạy kỹ năng giao tiếp mà còn là nghệ thuật sống, cách thấu hiểu tâm lý con người sâu sắc nhất. Đọc cuốn sách này là bước đầu tiên để bạn trở thành phiên bản tốt hơn của chính mình mỗi ngày." },
+                    { title: "Chương 1: Nghệ thuật ứng xử cơ bản - Không chỉ trích hay than phiền", text: "Khi đối phó với con người, hãy nhớ rằng chúng ta không đối đầu với những sinh vật logic, mà là những sinh vật đầy cảm xúc, với lòng tự trọng và sự kiêu hãnh. Thay vì chỉ trích hay oán trách, hãy tìm cách thấu hiểu nguyên nhân sâu xa phía sau hành động của họ. Sự cảm thông luôn mạnh mẽ hơn mọi lời quở trách." },
+                    { title: "Chương 2: Sáu cách tạo thiện cảm ngay từ cái nhìn đầu tiên", text: "1. Thật sự quan tâm đến người khác. 2. Luôn mỉm cười trong mọi hoàn cảnh. 3. Nhớ rằng tên của một người là âm thanh êm đềm và quan trọng nhất đối với họ. 4. Lắng nghe tích cực và khuyến khích người khác nói về chính họ. 5. Nói về những điều người khác quan tâm. 6. Làm cho người khác cảm thấy họ quan trọng và hãy làm điều đó một cách chân thành." },
+                    { title: "Chương 3: Mười hai cách hướng người khác theo suy nghĩ của bạn", text: "Cách duy nhất trên đời để tranh cãi chiến thắng là tránh nó đi. Tôn trọng ý kiến của người khác và không bao giờ nói 'Bạn đã sai'. Nếu bạn sai, hãy nhanh chóng và thẳng thắn thừa nhận điều đó. Luôn bắt đầu bằng một thái độ thân thiện và đặt ra những câu hỏi khiến người khác tự nói 'Phải, đúng vậy'." },
+                    { title: "Chương 4: Lãnh đạo chính mình và thay đổi người khác không gây oán giận", text: "Trước khi muốn phê bình ai đó, hãy bắt đầu bằng sự khen ngợi và đánh giá chân thành. Gọi ý lỗi lầm của người khác một cách gián tiếp. Khen ngợi mọi sự tiến bộ dù là nhỏ nhất. Hãy làm cho người khác cảm thấy hạnh phúc khi thực hiện điều bạn đề xuất." }
+                ]
+            },
+            {
+                id: "sach-2",
+                title: "Tuổi Trẻ Đáng Giá Bao Nhiêu?",
+                author: "Rosie Nguyễn",
+                publisher: "NXB Hội Nhà Văn",
+                year: 2022,
+                category: "Phát triển bản thân",
+                cover: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=500&auto=format&fit=crop&q=60",
+                summary: "Tác phẩm truyền cảm hứng sâu sắc về việc học tập, đọc sách và định hình tương lai.",
+                reason: "Phù hợp khi bạn đang cảm thấy mất phương hướng và muốn định hướng tương lai.",
+                fullContent: [
+                    { title: "Lời mở đầu: Bạn đang làm gì với tuổi trẻ của mình?", text: "Tuổi trẻ là quãng thời gian đẹp đẽ nhất nhưng cũng đầy rẫy những chông gai, bấp bênh và lạc lối. Cuốn sách này không đưa ra công thức thành công có sẵn, mà là lời tâm sự chân thành từ những trải nghiệm thực tế của tác giả Rosie Nguyễn." },
+                    { title: "Phần 1: Học, học nữa, học mãi - Trang bị hành trang vào đời", text: "Học không chỉ diễn ra trên ghế nhà trường qua những điểm số khô khan. Học là quá trình tích lũy suốt đời: học từ sách vở, học từ những người đi trước, học qua trải nghiệm thực tế và qua những vấp ngã. Đừng bao giờ ngừng trau dồi tri thức." },
+                    { title: "Phần 2: Sức mạnh kỳ diệu của việc đọc sách", text: "Sách là di sản vô giá của nhân loại. Đọc sách mở ra những chân trời mới, giúp bạn trò chuyện với những vĩ nhân trong quá khứ, thấu hiểu chiều sâu tâm hồn và định hình tư duy sắc bén." },
+                    { title: "Phần 3: Đi để trải nghiệm và trưởng thành", text: "Những chuyến đi tuổi trẻ không chỉ là check-in cảnh đẹp, mà là cơ hội để bứt phá khỏi vùng an toàn, đối diện với thử thách và khám phá tiềm năng vô tận của bản thân." }
+                ]
+            },
+            {
+                id: "sach-3",
+                title: "Đại Việt Sử Ký Toàn Thư",
+                author: "Ngô Sĩ Liên",
+                publisher: "NXB Chính trị quốc gia Sự thật",
+                year: 2021,
+                category: "Lịch sử Việt Nam",
+                cover: "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500&auto=format&fit=crop&q=60",
+                summary: "Bộ sách lịch sử chính thống ghi chép toàn diện lịch sử dân tộc từ thời Hồng Bàng.",
+                reason: "Tuyệt vời khi bạn muốn tìm hiểu lịch sử dân tộc Việt Nam chính thống.",
+                fullContent: [
+                    { title: "Lời giới thiệu: Bộ sử ký chuẩn mực của dân tộc", text: "Đại Việt Sử Ký Toàn Thư là bộ sách lịch sử quý giá bậc nhất của nước ta, được các sử gia triều Lê biên soạn, ghi lại toàn bộ tiến trình lịch sử hào hùng dựng nước và giữ nước từ thời Kinh Dương Vương đến triều đại nhà Lê." },
+                    { title: "Kỷ Hồng Bàng và thời đại các Vua Hùng", text: "Thuở ấy, Kinh Dương Vương nối ngôi dòng dõi Lạc Long Quân, lập nên nhà nước Văn Lang. Các đời Vua Hùng đã có công dựng nước, đặt nền móng vững chắc cho nền văn hóa lúa nước và tinh thần tự cường dân tộc." },
+                    { title: "Hào khí Đông A và chiến thắng Nguyên Mông", text: "Thời nhà Trần, tinh thần 'Dịch thần há sợ chết, xin chém đầu trước rồi hãy hàng' cùng với Hội nghị Diên Hồng bô lão đồng lòng đã làm nên ba lần chiến thắng oanh liệt giặc Nguyên Mông hùng mạnh bậc nhất thế giới." }
+                ]
+            },
+            {
+                id: "sach-4",
+                title: "Nhà Giả Kim",
+                author: "Paulo Coelho",
+                publisher: "NXB Văn học",
+                year: 2023,
+                category: "Văn học thế giới",
+                cover: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=500&auto=format&fit=crop&q=60",
+                summary: "Hành trình theo đuổi vận mệnh của cậu bé chăn cừu Santiago.",
+                reason: "Nuôi dưỡng tâm hồn và kiên trì theo đuổi ước mơ cá nhân.",
+                fullContent: [
+                    { title: "Chương 1: Giấc mơ định mệnh của cậu bé chăn cừu", text: "Santiago là một cậu bé chăn cừu ở xứ Andalusia. Trong một giấc chiêm bao, cậu thấy kho báu được chôn giấu ở các Kim tự tháp Ai Cập. Từ bỏ đàn cừu quen thuộc, cậu quyết định lên đường bắt đầu chuyến hành trình vĩ đại." },
+                    { title: "Chương 2: Gặp gỡ Nhà Giả Kim trên sa mạc", text: "Vượt qua vô vàn gian khó, sa mạc hiểm trở và những thử thách lòng người, cậu gặp Nhà Giả Kim thông thái. Ông dạy cho cậu bài học cốt lõi: 'Khi bạn khao khát một điều gì đó, cả vũ trụ sẽ hợp lực giúp bạn đạt được điều đó'." }
+                ]
+            },
+            {
+                id: "sach-5",
+                title: "Quản Lý Tài Chính Cá Nhân",
+                author: "Lê Thị Hồng Vân",
+                publisher: "NXB Trẻ",
+                year: 2022,
+                category: "Kỹ năng sống",
+                cover: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=500&auto=format&fit=crop&q=60",
+                summary: "Cẩm nang thiết thực giúp người trẻ lập kế hoạch chi tiêu thông minh.",
+                reason: "Rất cần thiết khi bạn muốn học cách quản lý tài chính cá nhân.",
+                fullContent: [
+                    { title: "Chương 1: Tư duy đúng đắn về tiền bạc", text: "Tiền không phải là tất cả nhưng là công cụ đắc lực mang lại sự độc lập và tự do lựa chọn trong cuộc sống. Kiểm soát tiền bạc bắt đầu từ việc hiểu rõ dòng tiền thu nhập và chi tiêu mỗi tháng." },
+                    { title: "Chương 2: Quy tắc quản lý tài chính 50/30/20", text: "Áp dụng công thức kinh điển: 50% thu nhập cho nhu cầu thiết yếu (nhà cửa, ăn uống, điện nước), 30% cho mong muốn bản thân (giải trí, mua sắm), và 20% bắt buộc dành cho tiết kiệm và đầu tư tương lai." }
+                ]
+            },
+            {
+                id: "sach-6",
+                title: "Dế Mèn Phiêu Lưu Ký",
+                author: "Tô Hoài",
+                publisher: "NXB Kim Đồng",
+                year: 2020,
+                category: "Văn học Việt Nam",
+                cover: "https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=500&auto=format&fit=crop&q=60",
+                summary: "Kiệt tác văn học thiếu nhi về thế giới loài vật và bài học đường đời.",
+                reason: "Mang lại niềm vui, tính kỷ luật và bài học về các mối quan hệ.",
+                fullContent: [
+                    { title: "Chương 1: Bài học đường đời đầu tiên", text: "Tôi sống độc lập từ thuở nhỏ trong cái hang dưới bờ cỏ. Vì tính khí kiêu căng, hống hách và trò đùa tai quái với chị Cốc, tôi đã gây ra cái chết oan ức cho người hàng xóm tội nghiệp là Dế Choắt. Đó là bài học đường đời đầu tiên vô cùng thấm thía theo tôi suốt cuộc đời." },
+                    { title: "Chương 2: Lên đường phiêu lưu kết nghĩa anh em", text: "Rời khỏi quê hương, Dế Mèn cùng người bạn đường tốt bụng là Dế Trũi bước vào hành trình phiêu lưu khắp đất trời, gặp gỡ muôn loài, đấu tranh chống lại cường quyền và bảo vệ kẻ yếu." }
+                ]
+            }
+        ];
+
+        const QUICK_SUGGESTIONS_LIST = [
+            "Tôi muốn có suy nghĩ tích cực và yêu cuộc sống hơn.",
+            "Tôi muốn hiểu bản thân và định hướng tương lai.",
+            "Tôi muốn tìm hiểu lịch sử dân tộc Việt Nam.",
+            "Tôi muốn phát triển tư duy và trí tuệ.",
+            "Tôi muốn học cách quản lý tài chính.",
+            "Tôi muốn cải thiện kỹ năng giao tiếp.",
+            "Tôi đang cảm thấy mất phương hướng.",
+            "Tôi muốn tìm hiểu văn hóa và xã hội.",
+            "Tôi muốn đọc sách văn học, tiểu thuyết.",
+            "Tôi muốn rèn luyện tính kỷ luật và sự kiên trì.",
+            "Tôi muốn hiểu hơn về tình cảm, gia đình và các mối quan hệ."
+        ];
+
+        let appState = {
+            user: { name: "Bạn đọc mới", dob: "2000-01-01", interests: "Phát triển bản thân" },
+            shelf: { reading: ["sach-1"], favorite: ["sach-4"], completed: [], want: ["sach-3"] },
+            notes: {},
+            ratings: {},
+            streak: { currentStreak: 0, maxStreak: 0, totalHours: 0, history: {} },
+            timer: { isRunning: false, seconds: 0, lastTimestamp: null },
+            reader: { currentBookId: null, currentChapterIndex: 0, fontSize: 16, theme: 'light' }
+        };
+
+        function loadAppData() {
+            const saved = localStorage.getItem('tram_sach_pro_state');
+            if (saved) {
+                try { appState = { ...appState, ...JSON.parse(saved) }; } catch (e) {}
+            }
+            // Khởi tạo ngày hiện tại trong history nếu chưa có
+            const today = getVNDate();
+            if (!appState.streak.history[today]) {
+                appState.streak.history[today] = 0;
+            }
+            // Nếu chưa đọc đủ 15 phút, currentStreak phải là 0 hoặc không tự động bật sáng khi chưa đọc
+            const todayMins = appState.streak.history[today] || 0;
+            if (todayMins < 15 && appState.streak.currentStreak > 0) {
+                // Kiểm tra lại chuỗi thực tế
+            }
+            checkDailyStreak();
+        }
+
+        function saveAppData() {
+            localStorage.setItem('tram_sach_pro_state', JSON.stringify(appState));
+        }
+
+        function getVNDate() {
+            const d = new Date();
+            const vn = new Date(d.toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" }));
+            return `${vn.getFullYear()}-${String(vn.getMonth()+1).padStart(2,'0')}-${String(vn.getDate()).padStart(2,'0')}`;
+        }
+
+        function checkDailyStreak() {
+            const today = getVNDate();
+            if (appState.streak.history[today] === undefined) {
+                appState.streak.history[today] = 0;
+            }
+            updateStreakUI();
+        }
+
+        window.onload = function() {
+            loadAppData();
+            renderQuickSuggestions();
+            renderFeaturedBook();
+            renderExploreBooks('all');
+            renderLibraryBooks();
+            renderShelfBooks();
+            renderJourneyStats();
+            renderCalendar();
+            renderMilestones();
+            initProfile();
+
+            document.getElementById('user-name-input').value = appState.user.name;
+            document.getElementById('user-dob-input').value = appState.user.dob;
+
+            // Chạy vòng lặp đồng hồ thời gian thực
+            setInterval(timerLoop, 1000);
+        };
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('text-blue-600', 'bg-blue-50', 'dark:bg-slate-800', 'dark:text-blue-400'));
+            const target = document.getElementById(`tab-${id}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            document.querySelectorAll(`[data-tab="${id}"]`).forEach(btn => btn.classList.add('text-blue-600', 'bg-blue-50', 'dark:bg-slate-800', 'dark:text-blue-400'));
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('theme-icon').className = isDark ? "fa-solid fa-sun text-sm text-yellow-400" : "fa-solid fa-moon text-sm";
+        }
+
+        function showToast(msg, type='success') {
+            const c = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold flex items-center gap-3 ${type==='success'?'bg-emerald-600':'bg-blue-650'}`;
+            t.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${msg}</span>`;
+            c.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function renderQuickSuggestions() {
+            document.getElementById('quick-suggestions-container').innerHTML = QUICK_SUGGESTIONS_LIST.map(text => `
+                <button onclick="document.getElementById('user-mood-input').value='${text.replace(/'/g,"\\'")}'" class="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 hover:bg-blue-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition text-left">
+                    ${text}
+                </button>
+            `).join('');
+        }
+
+        function scrollToSearch() {
+            document.getElementById('search-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function handleSmartRecommend() {
+            const name = document.getElementById('user-name-input').value.trim();
+            const mood = document.getElementById('user-mood-input').value.trim();
+            if (!name || !mood) {
+                showToast("Vui lòng điền họ tên và tâm trạng của bạn!", "info");
+                return;
+            }
+            appState.user.name = name;
+            appState.user.interests = mood;
+            saveAppData();
+            initProfile();
+
+            const resSec = document.getElementById('recommendation-results-section');
+            resSec.classList.remove('hidden');
+
+            const lower = mood.toLowerCase();
+            let scored = BOOKS_DATABASE.map(b => {
+                let score = 70;
+                if (lower.includes("giao tiếp") && b.id==="sach-1") score += 30;
+                if (lower.includes("phương hướng") && b.id==="sach-2") score += 30;
+                if (lower.includes("lịch sử") && b.id==="sach-3") score += 35;
+                if (lower.includes("tài chính") && b.id==="sach-5") score += 40;
+                if (lower.includes("tích cực") && b.id==="sach-4") score += 30;
+                return { ...b, matchScore: Math.min(99, score + Math.floor(Math.random()*5)) };
+            }).sort((a,b)=>b.matchScore - a.matchScore);
+
+            document.getElementById('recommendation-subtitle').innerText = `Dựa trên: "${mood}", đây là những tựa sách chính thống phù hợp nhất.`;
+            document.getElementById('recommendation-books-grid').innerHTML = scored.slice(0,5).map(b => `
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="relative h-48 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 book-cover-shadow">
+                            <img src="${b.cover}" alt="${b.title}" class="w-full h-full object-cover">
+                            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-600 text-white shadow">Phù hợp ${b.matchScore}%</span>
+                        </div>
+                        <h4 class="font-bold text-lg text-slate-900 dark:text-slate-100">${b.title}</h4>
+                        <p class="text-xs text-slate-500">${b.author} • ${b.publisher}</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">${b.summary}</p>
+                        <div class="p-3 rounded-xl bg-blue-50 dark:bg-slate-800 text-xs text-blue-900 dark:text-blue-200">
+                            <strong>Lý do:</strong> ${b.reason}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <button onclick="openBookModalDetail('${b.id}')" class="flex-1 py-2 bg-slate-100 dark:bg-slate-800 text-xs font-semibold rounded-xl">Chi tiết</button>
+                        <button onclick="toggleSaveShelf('${b.id}')" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-bookmark ${isBookInShelf(b.id)?'text-blue-600':''}"></i></button>
+                        <button onclick="openOnlineReader('${b.id}')" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl">Đọc ngay</button>
+                    </div>
+                </div>
+            `).join('');
+            resSec.scrollIntoView({ behavior: 'smooth' });
+            showToast("Đã tìm kiếm sách thành công!", "success");
+        }
+
+        function renderFeaturedBook() {
+            const b = BOOKS_DATABASE[0];
+            document.getElementById('featured-book-content').innerHTML = `
+                <div class="lg:col-span-4 flex justify-center">
+                    <div class="w-48 sm:w-60 h-72 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 book-cover-shadow">
+                        <img src="${b.cover}" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="lg:col-span-8 space-y-4">
+                    <span class="text-xs text-blue-300 uppercase">${b.category} • ${b.publisher}</span>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white">${b.title}</h3>
+                    <p class="text-sm text-blue-200">Tác giả: <strong class="text-white">${b.author}</strong></p>
+                    <p class="text-sm text-slate-300">${b.summary}</p>
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="openOnlineReader('${b.id}')" class="px-6 py-3 bg-amber-400 text-slate-950 font-bold rounded-xl shadow">ĐỌC NGAY</button>
+                        <button onclick="toggleSaveShelf('${b.id}')" class="px-6 py-3 bg-white/20 text-white font-semibold rounded-xl backdrop-blur-md">LƯU TỦ SÁCH</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        let currentCat = 'all';
+        function renderExploreBooks(cat) {
+            currentCat = cat;
+            const kw = document.getElementById('explore-search-input').value.toLowerCase();
+            const list = BOOKS_DATABASE.filter(b => (cat==='all' || b.category===cat) && (b.title.toLowerCase().includes(kw) || b.author.toLowerCase().includes(kw)));
+            document.getElementById('explore-books-grid').innerHTML = list.map(b => `
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3">
+                    <div class="space-y-2">
+                        <div class="h-44 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 book-cover-shadow">
+                            <img src="${b.cover}" class="w-full h-full object-cover">
+                        </div>
+                        <h4 class="font-bold text-base text-slate-900 dark:text-slate-100">${b.title}</h4>
+                        <p class="text-xs text-slate-500">${b.author}</p>
+                    </div>
+                    <div class="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <button onclick="openBookModalDetail('${b.id}')" class="flex-1 py-2 bg-slate-100 dark:bg-slate-800 text-xs font-semibold rounded-xl">Chi tiết</button>
+                        <button onclick="toggleSaveShelf('${b.id}')" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-bookmark ${isBookInShelf(b.id)?'text-blue-600':''}"></i></button>
+                        <button onclick="openOnlineReader('${b.id}')" class="px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl"><i class="fa-solid fa-book-open"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function filterCategory(cat) { renderExploreBooks(cat); }
+        function filterExploreBooks() { renderExploreBooks(currentCat); }
+
+        function renderLibraryBooks() {
+            document.getElementById('online-books-list').innerHTML = BOOKS_DATABASE.map(b => `
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                    <img src="${b.cover}" class="w-20 h-28 object-cover rounded-xl shadow book-cover-shadow">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-semibold text-blue-600 uppercase">${b.category}</span>
+                        <h4 class="font-bold text-base text-slate-900 dark:text-slate-100">${b.title}</h4>
+                        <p class="text-xs text-slate-500">${b.author}</p>
+                        <div class="pt-2">
+                            <button onclick="openOnlineReader('${b.id}')" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl shadow">Đọc trực tuyến</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openOnlineReader(id) {
+            const b = BOOKS_DATABASE.find(x => x.id === id);
+            if (!b) return;
+            appState.reader.currentBookId = id;
+            appState.reader.currentChapterIndex = 0;
+            document.getElementById('reader-book-title').innerText = b.title;
+            renderReaderChapter();
+            document.getElementById('reader-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (!appState.timer.isRunning) startTimer();
+        }
+
+        function closeReaderModal() {
+            document.getElementById('reader-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            saveAppData();
+            renderJourneyStats();
+        }
+
+        function renderReaderChapter() {
+            const b = BOOKS_DATABASE.find(x => x.id === appState.reader.currentBookId);
+            if (!b) return;
+            const ch = b.fullContent[appState.reader.currentChapterIndex];
+            document.getElementById('reader-chapter-title').innerText = ch.title;
+            document.getElementById('reader-text-content').innerHTML = `
+                <h3 class="text-2xl font-bold mb-4">${ch.title}</h3>
+                <p class="text-lg leading-relaxed">${ch.text}</p>
+            `;
+            const totalCh = b.fullContent.length;
+            const cur = appState.reader.currentChapterIndex;
+            document.getElementById('chapter-pagination-label').innerText = `Chương ${cur+1} / ${totalCh}`;
+            document.getElementById('prev-chapter-btn').disabled = cur === 0;
+            document.getElementById('next-chapter-btn').disabled = cur === totalCh - 1;
+            document.getElementById('reader-progress-bar').style.width = `${((cur+1)/totalCh)*100}%`;
+        }
+
+        function prevChapter() {
+            if(appState.reader.currentChapterIndex > 0){ appState.reader.currentChapterIndex--; renderReaderChapter(); }
+        }
+
+        function nextChapter() {
+            const b = BOOKS_DATABASE.find(x => x.id === appState.reader.currentBookId);
+            if(appState.reader.currentChapterIndex < b.fullContent.length-1){ appState.reader.currentChapterIndex++; renderReaderChapter(); }
+        }
+
+        function adjustFontSize(d) {
+            appState.reader.fontSize = Math.max(12, Math.min(24, appState.reader.fontSize+d));
+            document.getElementById('font-size-label').innerText = `${appState.reader.fontSize}px`;
+            document.getElementById('reader-text-content').style.fontSize = `${appState.reader.fontSize}px`;
+        }
+
+        function setReaderTheme(t) {
+            const c = document.getElementById('reader-scroll-container');
+            c.className = `flex-grow overflow-y-auto px-4 sm:px-12 py-8 flex justify-center ${t==='light'?'bg-white text-slate-900':t==='sepia'?'bg-[#fbf0d9] text-[#5f4b32]':'bg-slate-950 text-slate-100'}`;
+        }
+
+        function openNoteModal() {
+            document.getElementById('book-personal-note').value = appState.notes[appState.reader.currentBookId] || "";
+            document.getElementById('note-modal').classList.remove('hidden');
+        }
+        function closeNoteModal() { document.getElementById('note-modal').classList.add('hidden'); }
+        function saveBookNote() {
+            appState.notes[appState.reader.currentBookId] = document.getElementById('book-personal-note').value;
+            saveAppData();
+            closeNoteModal();
+            showToast("Đã lưu ghi chú thành công!");
+        }
+
+        let currentShelf = 'all';
+        function isBookInShelf(id) { return Object.values(appState.shelf).some(arr => arr.includes(id)); }
+        function toggleSaveShelf(id) {
+            if (appState.shelf.favorite.includes(id)) {
+                appState.shelf.favorite = appState.shelf.favorite.filter(x => x !== id);
+                showToast("Đã xóa khỏi yêu thích", "info");
+            } else {
+                appState.shelf.favorite.push(id);
+                showToast("Đã thêm vào yêu thích!");
+            }
+            saveAppData();
+            renderShelfBooks();
+        }
+
+        function switchShelfTab(t) {
+            currentShelf = t;
+            renderShelfBooks();
+        }
+
+        function renderShelfBooks() {
+            const ids = currentShelf === 'all' ? [...new Set(Object.values(appState.shelf).flat())] : (appState.shelf[currentShelf] || []);
+            const books = BOOKS_DATABASE.filter(b => ids.includes(b.id));
+            document.getElementById('shelf-books-grid').innerHTML = books.length ? books.map(b => `
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="flex gap-4">
+                        <img src="${b.cover}" class="w-20 h-28 object-cover rounded-xl shadow book-cover-shadow">
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-base text-slate-900 dark:text-slate-100">${b.title}</h4>
+                            <p class="text-xs text-slate-500">${b.author}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <button onclick="openOnlineReader('${b.id}')" class="flex-1 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl">Đọc tiếp</button>
+                    </div>
+                </div>
+            `).join('') : `<div class="col-span-full py-12 text-center text-slate-400">Chưa có sách trong danh mục này.</div>`;
+        }
+
+        // Đồng hồ Timestamp chính xác & Hệ thống Streak (Bắt đầu từ 0)
+        function startTimer() {
+            appState.timer.isRunning = true;
+            appState.timer.lastTimestamp = Date.now();
+            document.getElementById('home-timer-btn').innerHTML = `<i class="fa-solid fa-pause"></i> Tạm dừng`;
+            document.getElementById('journey-main-toggle-btn').innerHTML = `<i class="fa-solid fa-pause"></i> Tạm dừng`;
+            document.getElementById('journey-timer-state-label').innerText = "Đang tính giờ đọc...";
+            showToast("Bắt đầu phiên đọc sách!");
+        }
+
+        function pauseTimer() {
+            appState.timer.isRunning = false;
+            document.getElementById('home-timer-btn').innerHTML = `<i class="fa-solid fa-play"></i> Tiếp tục`;
+            document.getElementById('journey-main-toggle-btn').innerHTML = `<i class="fa-solid fa-play"></i> Tiếp tục`;
+            document.getElementById('journey-timer-state-label').innerText = "Đồng hồ đang dừng";
+        }
+
+        function stopTimer() {
+            appState.timer.isRunning = false;
+            document.getElementById('home-timer-btn').innerHTML = `<i class="fa-solid fa-play"></i> Bắt đầu`;
+            document.getElementById('journey-main-toggle-btn').innerHTML = `<i class="fa-solid fa-play"></i> Bắt đầu`;
+            document.getElementById('journey-timer-state-label').innerText = "Đã kết thúc phiên";
+            saveAppData();
+            showToast("Đã lưu thời gian đọc thành công!");
+        }
+
+        function toggleTimer() {
+            if (appState.timer.isRunning) pauseTimer(); else startTimer();
+        }
+
+        function timerLoop() {
+            if (appState.timer.isRunning) {
+                const now = Date.now();
+                const diffSecs = Math.floor((now - appState.timer.lastTimestamp) / 1000);
+                if (diffSecs >= 1) {
+                    appState.timer.seconds += diffSecs;
+                    appState.timer.lastTimestamp = now;
+                    const today = getVNDate();
+                    const totalMins = Math.floor(appState.timer.seconds / 60);
+                    appState.streak.history[today] = totalMins;
+                    
+                    // Đạt đủ 15 phút mới bật chuỗi lên 1 ngày
+                    if (totalMins >= 15 && appState.streak.currentStreak === 0) {
+                        appState.streak.currentStreak = 1;
+                        appState.streak.maxStreak = Math.max(appState.streak.maxStreak, 1);
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                        showToast("🎉 Chúc mừng bạn đã hoàn thành 15 phút và thắp sáng chuỗi Streak!");
+                    }
+                    saveAppData();
+                }
+            }
+            updateTimerDisplays();
+        }
+
+        function updateTimerDisplays() {
+            const s = appState.timer.seconds;
+            const h = String(Math.floor(s/3600)).padStart(2,'0');
+            const m = String(Math.floor((s%3600)/60)).padStart(2,'0');
+            const sec = String(s%60).padStart(2,'0');
+            const str = `${h}:${m}:${sec}`;
+
+            document.getElementById('home-timer-display').innerText = str;
+            document.getElementById('library-timer-display').innerText = str;
+            document.getElementById('journey-timer-display').innerText = str;
+
+            const today = getVNDate();
+            const mins = appState.streak.history[today] || 0;
+            document.getElementById('journey-today-minutes').innerText = `${mins} / 15`;
+            document.getElementById('journey-progress-bar').style.width = `${Math.min(100, (mins/15)*100)}%`;
+
+            updateStreakUI();
+        }
+
+        function updateStreakUI() {
+            const streak = appState.streak.currentStreak;
+            document.getElementById('header-streak-count').innerText = `${streak} ngày`;
+            document.getElementById('journey-streak-number').innerText = streak;
+            document.getElementById('profile-streak-badge').innerText = `${streak} ngày liên tiếp`;
+            document.getElementById('journey-max-streak').innerText = `${appState.streak.maxStreak} ngày`;
+            const totalMins = Object.values(appState.streak.history).reduce((a,b)=>a+b, 0);
+            document.getElementById('journey-total-hours').innerText = `${totalMins} phút`;
+            document.getElementById('journey-completed-count').innerText = `${appState.shelf.completed.length} cuốn`;
+        }
+
+        function renderCalendar() {
+            const now = new Date();
+            const year = now.getFullYear(), month = now.getMonth();
+            document.getElementById('current-month-year-label').innerText = `Tháng ${month+1}, ${year}`;
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month+1, 0).getDate();
+            let html = '';
+            let offset = firstDay === 0 ? 6 : firstDay - 1;
+            for (let i = 0; i < offset; i++) html += `<div></div>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateKey = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const done = (appState.streak.history[dateKey] || 0) >= 15;
+                html += `<div class="h-9 rounded-xl flex items-center justify-center text-xs font-semibold ${done?'bg-emerald-500 text-white':'bg-slate-100 dark:bg-slate-800 text-slate-500'}">${d}</div>`;
+            }
+            document.getElementById('calendar-days-grid').innerHTML = html;
+        }
+
+        function renderMilestones() {
+            const milestones = [{d:3, t:"Khởi đầu"}, {d:7, t:"Một tuần kiên trì"}, {d:15, t:"Người yêu sách"}, {d:30, t:"Tháng tri thức"}];
+            const cur = appState.streak.currentStreak;
+            document.getElementById('milestones-list').innerHTML = milestones.map(m => `
+                <div class="flex items-center gap-4 p-4 rounded-2xl border ${cur>=m.d?'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200':'bg-slate-50 dark:bg-slate-800 border-slate-200'}">
+                    <div class="w-10 h-10 rounded-xl ${cur>=m.d?'bg-emerald-500 text-white':'bg-slate-200 text-slate-400'} flex items-center justify-center font-bold">${cur>=m.d?'<i class="fa-solid fa-check"></i>':m.d}</div>
+                    <div class="flex-grow"><h4 class="font-bold text-sm">${m.t}</h4><p class="text-xs text-slate-500">Chuỗi ${m.d} ngày</p></div>
+                </div>
+            `).join('');
+        }
+
+        function initProfile() {
+            document.getElementById('edit-profile-name').value = appState.user.name;
+            document.getElementById('edit-profile-dob').value = appState.user.dob;
+            document.getElementById('edit-profile-interests').value = appState.user.interests;
+            document.getElementById('profile-display-name').innerText = appState.user.name;
+            document.getElementById('profile-display-dob').innerText = `Ngày sinh: ${appState.user.dob}`;
+            document.getElementById('profile-avatar-initial').innerText = appState.user.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+        }
+
+        function saveProfile() {
+            appState.user.name = document.getElementById('edit-profile-name').value;
+            appState.user.dob = document.getElementById('edit-profile-dob').value;
+            appState.user.interests = document.getElementById('edit-profile-interests').value;
+            saveAppData();
+            initProfile();
+            showToast("Đã lưu hồ sơ cá nhân!");
+        }
+
+        function openBookModalDetail(id) {
+            const b = BOOKS_DATABASE.find(x => x.id === id);
+            if (!b) return;
+            document.getElementById('modal-book-content').innerHTML = `
+                <div class="flex flex-col sm:flex-row gap-6">
+                    <img src="${b.cover}" class="w-full sm:w-44 h-60 object-cover rounded-2xl shadow-lg book-cover-shadow">
+                    <div class="space-y-3 flex-grow">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">${b.category}</span>
+                        <h3 class="text-2xl font-extrabold">${b.title}</h3>
+                        <p class="text-sm">Tác giả: <strong>${b.author}</strong> • NXB: <strong>${b.publisher}</strong></p>
+                        <p class="text-xs text-slate-600 dark:text-slate-400">${b.summary}</p>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button onclick="closeBookModal(); openOnlineReader('${b.id}');" class="px-6 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl shadow">Đọc ngay trực tuyến</button>
+                </div>
+            `;
+            document.getElementById('book-detail-modal').classList.remove('hidden');
+            document.getElementById('book-detail-modal').classList.add('flex');
+        }
+        function closeBookModal() {
+            document.getElementById('book-detail-modal').classList.add('hidden');
+            document.getElementById('book-detail-modal').classList.remove('flex');
+        }
+    </script>
+</body>
+</html>
